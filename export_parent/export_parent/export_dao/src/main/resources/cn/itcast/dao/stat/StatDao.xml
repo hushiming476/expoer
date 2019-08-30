@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.itcast.dao.stat.StatDao">
+
+    <!--需求1：根据生产厂家统计货物销售金额-->
+    <!--resutType或者resultMap必须指定。-->
+    <select id="getFactoryData" resultType="map">
+        SELECT
+          f.factory_name name,
+          SUM(cp.amount) value
+        FROM co_contract_product cp
+          INNER JOIN co_factory f ON cp.factory_id=f.id
+        WHERE 1=1
+          AND cp.company_id=#{companyId}
+        GROUP BY f.factory_name
+    </select>
+
+    <!--需求2：商品销售统计排行-->
+    <select id="getProductData" resultType="map">
+        SELECT
+          product_no name,
+          SUM(cp.amount) value
+        FROM co_contract_product cp
+        WHERE 1=1
+          AND cp.company_id=#{companyId}
+        GROUP BY product_no
+        ORDER BY SUM(cp.amount) DESC
+        LIMIT 5
+    </select>
+
+    <!--需求3： 系统访问压力图-->
+    <select id="getOnlineData" resultType="map">
+        SELECT o.a1 name,IFNULL(p.num,0) value  FROM st_online_info o
+        LEFT JOIN (
+            SELECT DATE_FORMAT(TIME,'%H') h,COUNT(TIME) num
+            FROM st_sys_log WHERE company_id=#{companyId} GROUP BY h
+        ) p ON o.a1=p.h
+    </select>
+</mapper>

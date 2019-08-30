@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:amq="http://activemq.apache.org/schema/core"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
+
+    <description>Spring整合ActiveMQ，发送消息</description>
+
+    <!--1. 创建连接工厂-->
+    <amq:connectionFactory id="amqConnectionFactory"
+            userName="admin"
+            password="admin"
+            brokerURL="tcp://192.168.12.132:61616"/>
+
+    <!--2. 创建缓存连接工厂-->
+    <bean id="cachingConnectionFactory"
+          class="org.springframework.jms.connection.CachingConnectionFactory">
+        <!--指定目标连接工厂-->
+        <property name="targetConnectionFactory" ref="amqConnectionFactory"/>
+        <!--指定缓存的session的个数-->
+        <property name="sessionCacheSize" value="5"/>
+    </bean>
+
+    <!--3. 创建Spring整合ActiveMQ后，提供的发送消息的模板：JmsTemplate-->
+    <bean id="jmsQueueTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <property name="connectionFactory" ref="cachingConnectionFactory"/>
+        <!--默认false，表示Queue队列模式-->
+        <property name="pubSubDomain" value="false"/>
+    </bean>
+
+    <bean id="jmsTopicTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <property name="connectionFactory" ref="cachingConnectionFactory"/>
+        <!--默认false，表示Queue队列模式-->
+        <property name="pubSubDomain" value="true"/>
+    </bean>
+
+</beans>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <description>Spring整合Quartz的配置</description>
+
+    <!--1. 配置定时执行的任务Bean-->
+    <bean id="myTask" class="cn.itcast.web.task.MyTask"/>
+
+    <!--2. 配置任务工厂-->
+    <bean id="jobDetailFactoryBean"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <!--2.1 注入任务bean-->
+        <property name="targetObject" ref="myTask"/>
+        <!--2.2 注入任务方法-->
+        <property name="targetMethod" value="execute"/>
+    </bean>
+
+    <!--3. 配置任务执行触发器-->
+    <bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <!--3.1 注入任务工厂-->
+        <property name="jobDetail" ref="jobDetailFactoryBean"/>
+        <!--3.2 注入任务调度表达式（关键）-->
+        <property name="cronExpression" value="0/5 * * * * ? *"/>
+    </bean>
+
+    <!--4. 创建执行计划对象-->
+    <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <!--4.1 注入任务触发器-->
+        <property name="triggers">
+            <array>
+                <ref bean="cronTrigger"/>
+            </array>
+        </property>
+    </bean>
+
+
+
+</beans>

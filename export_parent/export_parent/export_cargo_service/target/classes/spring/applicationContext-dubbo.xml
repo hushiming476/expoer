@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+    <!--1. 配置服务端项目名称-->
+    <dubbo:application name="export_cargo_service"/>
+
+    <!--2. zookeeper注册中心地址-->
+    <dubbo:registry address="zookeeper://192.168.233.99:2181"/>
+
+    <!--3. duboo协议配置、程序访问服务端口（不要重复）-->
+    <dubbo:protocol name="dubbo" port="20883"/>
+
+    <!--4. dubbo注解扫描，扫描dubbo提供的service注解-->
+    <dubbo:annotation package="cn.itcast.service.cargo"/>
+</beans>

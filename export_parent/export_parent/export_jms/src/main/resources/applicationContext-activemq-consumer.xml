@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:amq="http://activemq.apache.org/schema/core"
+       xmlns:jms="http://www.springframework.org/schema/jms"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <description>Spring整合ActiveMQ，消费消息</description>
+
+    <!--1. 创建连接工厂-->
+    <amq:connectionFactory id="amqConnectionFactory"
+            userName="admin"
+            password="admin"
+            brokerURL="tcp://192.168.233.99:61616"/>
+
+    <!--2. 创建缓存连接工厂-->
+    <bean id="cachingConnectionFactory"
+          class="org.springframework.jms.connection.CachingConnectionFactory">
+        <!--指定目标连接工厂-->
+        <property name="targetConnectionFactory" ref="amqConnectionFactory"/>
+        <!--指定缓存的session的个数-->
+        <property name="sessionCacheSize" value="5"/>
+    </bean>
+
+    <context:component-scan base-package="cn.itcast.listener"/>
+
+    <!--4. 配置监听器-->
+    <jms:listener-container destination-type="queue"
+                            connection-factory="cachingConnectionFactory">
+        <jms:listener destination="email" ref="emailListener"/>
+    </jms:listener-container>
+
+</beans>

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--1. 配置shiro的过滤器工厂，这里的id与web.xml中的filter-name一致。-->
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <!--1.1 注入securityManager。shiro的最核心对象。-->
+        <property name="securityManager" ref="securityManager"/>
+
+        <!--1.2 认证失败后跳转的登陆页面-->
+        <property name="loginUrl" value="/login.jsp"/>
+        <!--1.3 认证成功后跳转的页面。如果程序中认证成功后有指定跳转页面，以程序指定的为准。-->
+        <property name="successUrl" value="/home.jsp"/>
+        <!--1.4 未授权跳转到的错误页面-->
+        <property name="unauthorizedUrl" value="/unauthorized.jsp"/>
+
+        <!--1.5 配置shiro内置的过滤器，指定哪些资源需要放行、认证、权限校验-->
+        <property name="filterChainDefinitions">
+            <value>
+                <!--先指定放行的资源-->
+                /login.jsp* = anon
+                /login* = anon
+                /index.jsp* = anon
+                /logout* = anon
+                /css/** = anon
+                /img/** = anon
+                /make/** = anon
+                /plugins/** = anon
+                <!--
+                权限校验过滤器配置
+                语法： 左边为访问地址，右边配置访问地址需要的权限
+                举例： /system/user/list.do = perms['用户管理']
+                优点： 权限控制与代码完全解耦。
+                缺点： 需要权限控制的功能点比较多，这里维护困难。
+
+                /system/user/list.do = perms['用户管理']-->
+                <!--其他所有资源都要认证-->
+                /** = authc
+            </value>
+        </property>
+    </bean>
+
+    <!--2. 配置安全管理器SecurityManager-->
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <!--注入自定义的realm-->
+        <property name="realm" ref="myRealm"/>
+    </bean>
+
+    <!--3. 配置自定义的realm-->
+    <bean id="myRealm" class="cn.itcast.web.shiro.AuthRealm">
+        <!--目标：为了让shiro自动对用户输入的密码进行加密。-->
+        <!--所以，在这里配置凭证匹配器-->
+        <property name="credentialsMatcher" ref="credentialsMatcher"/>
+    </bean>
+
+    <!--4. 创建凭证匹配器，指定加密算法为md5
+    <bean id="credentialsMatcher"
+          class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
+        <property name="hashAlgorithmName" value="md5"/>
+    </bean>
+    -->
+
+    <!--自定义凭证匹配器-->
+    <bean id="credentialsMatcher" class="cn.itcast.web.shiro.CustomCredentialsMatcher"/>
+
+    <!--开启shiro权限校验注解支持-->
+    <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
+    <!--depends-on 表示创建当前对象之前先创建depends-on依赖的对象。-->
+    <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"
+          depends-on="lifecycleBeanPostProcessor"/>
+    <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+        <property name="securityManager" ref="securityManager"/>
+    </bean>
+</beans>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

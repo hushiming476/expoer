@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+    <!--1. 注解扫描-->
+    <context:component-scan base-package="cn.itcast.web"/>
+
+    <!--2. 视图解析器-->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/pages/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <!--3. 注解驱动-->
+    <mvc:annotation-driven conversion-service="conversionServiceFactory"/>
+
+    <!--4. 配置转换器工厂-->
+    <bean id="conversionServiceFactory" class="org.springframework.context.support.ConversionServiceFactoryBean">
+        <property name="converters">
+            <set>
+                <!--配置自定义的转换器-->
+                <bean class="cn.itcast.web.converter.StringToDateConverter"/>
+            </set>
+        </property>
+    </bean>
+
+    <!--5. 配置自定义异常类-->
+    <bean class="cn.itcast.web.exceptions.CustomerExceptionResovler"/>
+
+    <!--6. 开启Aop自动代理-->
+    <aop:aspectj-autoproxy/>
+
+    <!--7. dubbo相关配置-->
+    <!--配置dubbo服务提供者的项目名称，唯一-->
+    <dubbo:application name="export_web_manager"/>
+    <!--配置zookeeper注册中心地址-->
+    <dubbo:registry address="zookeeper://192.168.233.99:2181"/>
+    <!--dubbo注解扫描，扫描dubbo的service注解-->
+    <dubbo:annotation package="cn.itcast.web.controller"/>
+
+    <!--8. 加载七牛云配置文件-->
+    <context:property-placeholder location="classpath:properties/qiniu.properties"/>
+
+    <!--9. 文件上传解析器-->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="maxUploadSize" value="10485760"/>
+    </bean>
+</beans>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
